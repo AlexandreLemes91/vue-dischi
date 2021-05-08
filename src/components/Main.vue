@@ -1,10 +1,13 @@
 <template>
     <main>
         <div class="container">
-            <AlbumCard
-            v-for="(album,index) in albumsList"
-            :key="index"
-            :details="album"/>
+            <SelectGenre @selectedGenre="filterGenre" />
+            <div class="album-container">
+                <AlbumCard
+                v-for="(album,index) in filteredAlbums"
+                :key="index"
+                :details="album"/>
+            </div>
         </div>
     </main>
 </template>
@@ -12,18 +15,32 @@
 <script>
 import axios from 'axios';
 import AlbumCard from '@/components/AlbumCard'
+import SelectGenre from '@/components/SelectGenre';
 
 export default {
     name: "Main",
 
     components:{
-        AlbumCard
+        AlbumCard,
+        SelectGenre,
     },
 
     data(){
         return{
             apiURL: 'https://flynn.boolean.careers/exercises/api/array/music',
             albumsList: [],
+            actualGenre: 'All',
+        }
+    },
+
+    computed: {
+        filteredAlbums() {
+            if( this.actualGenre === "All" ){
+                console.log("oi")
+                return this.albumsList;
+            }else{
+                return this.albumsList.filter( e => e.genre === this.actualGenre )
+            }
         }
     },
 
@@ -32,19 +49,18 @@ export default {
     },
 
     methods: {
-
-        /**
-         * @url url dell'api da chiamare
-         * @spazio array dove inserire il dato chiamato
-         */
         getMusicInfo(){
             axios.get(this.apiURL)
             .then( resp =>{
-                console.log(resp.data.response);
                 this.albumsList = resp.data.response;
-                console.log(this.albumsList);
             })
-        }
+        },
+
+        filterGenre(value){
+           this.actualGenre = value
+           console.log('genere attuale: ', this.actualGenre);
+        },
+
     }
 }
 </script>
@@ -54,12 +70,20 @@ export default {
 @import '@/components/scss/var';
 
 main{
-    margin-top: 140px;
+    padding: 100px 0;
 
     .container{
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+
+        form{
+            text-align: center;
+        }
+
+        .album-container{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
     
     }
 }
